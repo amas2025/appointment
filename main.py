@@ -1,55 +1,75 @@
 import streamlit as st
-import pandas as pd
-from datetime import date, datetime
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
 
-# Set up the page title
-st.set_page_config(page_title="Appointment Booking System")
-st.title("Appointment Booking System")
+# Configuration (Replace these with your own values)
+SMTP_SERVER = "smtp.gmail.com"
+SMTP_PORT = 587
+EMAIL_ADDRESS = "your_email@gmail.com"
+EMAIL_PASSWORD = "your_email_password"
+NOTIFICATION_EMAIL = "your_notification_email@gmail.com"
 
-# Introduction
-st.markdown("Please fill out the form below to schedule an appointment.")
+# Function to send email
+def send_email(subject, body):
+    try:
+        msg = MIMEMultipart()
+        msg['From'] = EMAIL_ADDRESS
+        msg['To'] = NOTIFICATION_EMAIL
+        msg['Subject'] = subject
+        
+        msg.attach(MIMEText(body, 'plain'))
 
-# Form to collect user information
-with st.form("appointment_form"):
-    st.subheader("Personal Information")
-    full_name = st.text_input("Full Name", placeholder="Required")
-    phone_number = st.text_input("Phone Number (e.g., 07xxxxxxxxx)", placeholder="Required", help="Enter a valid Iraqi phone number starting with 07.")
-    gender = st.radio("Gender", ("Male", "Female", "Other"))
-    age = st.number_input("Age", min_value=18, max_value=60, step=1)
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+            server.starttls()
+            server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+            server.send_message(msg)
 
-    st.subheader("Appointment Details")
-    appointment_date = st.date_input("Select a Date", min_value=date.today())
-    appointment_time = st.time_input("Select a Time")
-    topic = st.text_area("Topic of Discussion")
+    except Exception as e:
+        st.error(f"Error sending email: {e}")
 
-    # Submit button
-    submitted = st.form_submit_button("Submit")
+# Streamlit App
+def main():
+    st.title("Supplier Appointment Booking")
+
+    st.header("Fill in your details to book an appointment")
+
+    with st.form("appointment_form"):
+        # Personal details
+        full_name = st.text_input("Full Name", "")
+        phone_number = st.text_input("Phone Number", "")
+        gender = st.selectbox("Gender", ["Male", "Female", "Other"])
+        age = st.number_input("Age", min_value=1, max_value=120, step=1)
+
+        # Appointment details
+        appointment_date = st.date_input("Select a Date")
+        appointment_time = st.time_input("Select a Time")
+        topic = st.text_area("What do you want to talk about?")
+
+        submitted = st.form_submit_button("Book Appointment")
 
     if submitted:
-        if not full_name.strip() or not phone_number.strip() or not topic.strip():
-            st.error("Please fill in all the required fields.")
-        elif not phone_number.startswith("07") or len(phone_number) != 11 or not phone_number.isdigit():
-            st.error("Please enter a valid Iraqi phone number.")
+        if not full_name or not phone_number or not topic:
+            st.error("Please fill out all required fields!")
         else:
-            # Save appointment data
-            data = {
-                "Full Name": full_name,
-                "Phone Number": phone_number,
-                "Gender": gender,
-                "Age": age,
-                "Appointment Date": appointment_date,
-                "Appointment Time": appointment_time.strftime("%H:%M"),
-                "Topic": topic,
-            }
-            df = pd.DataFrame([data])
+            # Save or process the appointment details
+            email_subject = f"New Appointment from {full_name}"
+            email_body = (
+                f"New appointment details:\n\n"
+                f"Full Name: {full_name}\n"
+                f"Phone Number: {phone_number}\n"
+                f"Gender: {gender}\n"
+                f"Age: {age}\n"
+                f"Date: {appointment_date}\n"
+                f"Time: {appointment_time}\n"
+                f"Topic: {topic}\n"
+            )
 
-            # Save to a CSV file
-            try:
-                df.to_csv("appointments.csv", mode="a", index=False, header=False)
-                st.success("Your appointment has been booked successfully!")
-            except Exception as e:
-                st.error(f"An error occurred: {e}")
+            # Send email notification
+            send_email(email_subject, email_body)
+            
+            st.success("Your appointment has been booked. We will contact you soon!")
 
-# Hide the display of existing appointments
-st.markdown("### Scheduled Appointments")
-st.info("Appointment data is stored internally and not displayed here.")
+if __name__ == "__main__":
+    main()
