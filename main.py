@@ -13,7 +13,7 @@ st.markdown("Please fill out the form below to schedule an appointment.")
 with st.form("appointment_form"):
     st.subheader("Personal Information")
     full_name = st.text_input("Full Name", placeholder="Required")
-    phone_number = st.text_input("Phone Number", placeholder="Required")
+    phone_number = st.text_input("Phone Number (e.g., 07xxxxxxxxx)", placeholder="Required", help="Enter a valid Iraqi phone number starting with 07.")
     gender = st.radio("Gender", ("Male", "Female", "Other"))
     age = st.number_input("Age", min_value=18, max_value=60, step=1)
 
@@ -28,6 +28,8 @@ with st.form("appointment_form"):
     if submitted:
         if not full_name.strip() or not phone_number.strip() or not topic.strip():
             st.error("Please fill in all the required fields.")
+        elif not phone_number.startswith("07") or len(phone_number) != 11 or not phone_number.isdigit():
+            st.error("Please enter a valid Iraqi phone number.")
         else:
             # Save appointment data
             data = {
@@ -48,12 +50,6 @@ with st.form("appointment_form"):
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
-# Display existing appointments
-st.subheader("Scheduled Appointments")
-try:
-    appointments = pd.read_csv("appointments.csv", names=[
-        "Full Name", "Phone Number", "Gender", "Age", "Appointment Date", "Appointment Time", "Topic"
-    ])
-    st.dataframe(appointments)
-except FileNotFoundError:
-    st.info("No appointments have been scheduled yet.")
+# Hide the display of existing appointments
+st.markdown("### Scheduled Appointments")
+st.info("Appointment data is stored internally and not displayed here.")
