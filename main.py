@@ -7,18 +7,18 @@ from google.oauth2.service_account import Credentials
 
 # Google Drive Folder ID
 GOOGLE_DRIVE_FOLDER_ID = "1C3-yfqeYAi90wCA6KXosm5YBOW_zWiB_"
-# Path to your service account key file
-SERVICE_ACCOUNT_FILE = "service_account.json"
 
-# Authenticate with Google Drive API
-def authenticate_google_drive():
-    credentials = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE)
-    drive_service = build('drive', 'v3', credentials=credentials)
-    return drive_service
+# Verify and load Google Drive credentials
+try:
+    service_account_info = st.secrets["service_account"]
+    credentials = Credentials.from_service_account_info(service_account_info)
+    st.success("Google Drive credentials loaded successfully.")
+except Exception as e:
+    st.error(f"Error loading Google Drive credentials: {e}")
 
 # Upload file to Google Drive
 def upload_to_google_drive(file_name, folder_id):
-    drive_service = authenticate_google_drive()
+    drive_service = build('drive', 'v3', credentials=credentials)
     file_metadata = {
         'name': file_name,
         'parents': [folder_id]
