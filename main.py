@@ -7,9 +7,9 @@ from email.mime.application import MIMEApplication
 # Configuration (Replace these with your own values)
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
-EMAIL_ADDRESS = "your_email@gmail.com"
+EMAIL_ADDRESS = "meriwanmirany1991@gmail.com"
 EMAIL_PASSWORD = "your_email_password"
-NOTIFICATION_EMAIL = "your_notification_email@gmail.com"
+NOTIFICATION_EMAIL = "meriwanmirany1991@gmail.com"
 
 # Function to send email
 def send_email(subject, body):
