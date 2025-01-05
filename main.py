@@ -12,10 +12,10 @@ st.markdown("Please fill out the form below to schedule an appointment.")
 # Form to collect user information
 with st.form("appointment_form"):
     st.subheader("Personal Information")
-    full_name = st.text_input("Full Name")
-    phone_number = st.text_input("Phone Number")
+    full_name = st.text_input("Full Name", placeholder="Required")
+    phone_number = st.text_input("Phone Number", placeholder="Required")
     gender = st.radio("Gender", ("Male", "Female", "Other"))
-    age = st.number_input("Age", min_value=1, max_value=120, step=1)
+    age = st.number_input("Age", min_value=18, max_value=60, step=1)
 
     st.subheader("Appointment Details")
     appointment_date = st.date_input("Select a Date", min_value=date.today())
@@ -26,7 +26,7 @@ with st.form("appointment_form"):
     submitted = st.form_submit_button("Submit")
 
     if submitted:
-        if not full_name or not phone_number or not topic:
+        if not full_name.strip() or not phone_number.strip() or not topic.strip():
             st.error("Please fill in all the required fields.")
         else:
             # Save appointment data
