@@ -5,6 +5,9 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from google.oauth2.service_account import Credentials
 
+# Set up the page title
+st.set_page_config(page_title="Appointment Booking System")
+
 # Google Drive Folder ID
 GOOGLE_DRIVE_FOLDER_ID = "1C3-yfqeYAi90wCA6KXosm5YBOW_zWiB_"
 
@@ -27,11 +30,8 @@ def upload_to_google_drive(file_name, folder_id):
     file = drive_service.files().create(body=file_metadata, media_body=media, fields='id').execute()
     return file.get('id')
 
-# Set up the page title
-st.set_page_config(page_title="Appointment Booking System")
-st.title("Appointment Booking System")
-
 # Introduction
+st.title("Appointment Booking System")
 st.markdown("Please fill out the form below to schedule an appointment.")
 
 # Form to collect user information
